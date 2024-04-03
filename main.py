@@ -79,9 +79,9 @@ async def process_equation(message: types.Message):
 
         if b > 0 and det != 0 and t * det < 0:
             answer_g = "Эллипс"
-        elif b < 0 & det != 0:
+        elif b < 0 and det != 0:
             answer_g = "Гипербола"
-        elif b == 0 & det != 0:
+        elif b == 0 and det != 0:
             answer_g = "Парабола"
 
         answer = f"{answer_t}\n\n{answer_b}\n\ndet A={answer_det}\n\nТип графика={answer_g}"
