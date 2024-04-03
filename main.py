@@ -39,72 +39,80 @@ async def process_equation(message: types.Message):
         nonlocal equation
         equation = m.text
         await m.answer(f"Вы ввели: {equation}")
-        # canonical_eq = convert_to_canonical(equation)
-        # await message.answer(f"Уравнение в каноническом виде1: {canonical_eq}")
-        canonical_eq = convert_equation_to_quadratic(equation)
-        await message.answer(canonical_eq)
 
+        variables = convert_equation_to_quadratic(equation)
+
+        A11, A12, A22, A1, A2, A0 = 0, 0, 0, 0, 0, 0
+
+        A11 = int(variables["A11"])
+        A12 = int(variables["A12"])
+        A22 = int(variables["A22"])
+        A1 = int(variables["A1"])
+        A2 = int(variables["A2"])
+        A0 = int(variables["A0"])
+
+        # Подсчёт t
+        t = A11 + A22
+        answer_t = f"t={t}"
+
+        # Подсчёт b
+        matrix_b = [[A11, A12], [A12, A22]]
+        result_b = '\n'.join(['\t'.join(map(str, row)) for row in matrix_b])
+        b = (A11 * A22) - (A12 * A12)
+        answer_b = f"b=\n{result_b} = ({A11} * {A22}) - ({A12} * {A12}) = {b}"
+
+        # det_a
+        matrix_det_a = [[A11, A12, A1],
+                        [A12, A22, A2],
+                        [A1, A2, A0]]
+
+        det = matrix_det_a[0][0] * (matrix_det_a[1][1] * matrix_det_a[2][2] - matrix_det_a[1][2] * matrix_det_a[2][1]) - \
+              matrix_det_a[0][1] * (matrix_det_a[1][0] * matrix_det_a[2][2] - matrix_det_a[1][2] * matrix_det_a[2][0]) + \
+              matrix_det_a[0][2] * (matrix_det_a[1][0] * matrix_det_a[2][1] - matrix_det_a[1][1] * matrix_det_a[2][0])
+        result_a = '\n'.join(['\t'.join(map(str, row)) for row in matrix_det_a])
+
+        answer_det = f"\n{result_a} = {matrix_det_a[0][0]} * ({matrix_det_a[1][1]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][1]}) - {matrix_det_a[0][1]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][0]}) + {matrix_det_a[0][2]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][1]} - {matrix_det_a[1][1]} * {matrix_det_a[2][0]}) = {det}"
+
+        # Определение типа графика
+
+        answer_g = ""
+
+        if b > 0 and det != 0 and t * det < 0:
+            answer_g = "Эллипс"
+        elif b < 0 & det != 0:
+            answer_g = "Гипербола"
+        elif b == 0 & det != 0:
+            answer_g = "Парабола"
+
+        answer = f"{answer_t}\n\n{answer_b}\n\ndet A={answer_det}\n\nТип графика={answer_g}"
+
+        await message.answer(answer)
 
     dp.message.register(wait_for_equation)
 
 
 def convert_equation_to_quadratic(equation):
-    # Разбиваем уравнение на члены
-    terms = equation.split('+')
+    equation = equation.replace("-", "+-")  # добавляем плюс перед отрицательными значениями
+    pattern = r'\+|='
+    terms = re.split(pattern, equation)  # разделяем уравнение на члены по знакам '+' и '='
 
-    # Ищем коэффициенты
-    coefficients = {'x^2': 0, 'xy': 0, 'y^2': 0}
+    variables = {'A11': 0, 'A12': 0, 'A22': 0, 'A1': 0, 'A2': 0, 'A0': 0}
+
     for term in terms:
         if 'x^2' in term:
-            coefficients['x^2'] = int(re.findall(r'\d+', term)[0])
-        elif 'xy' in term:
-            coefficients['xy'] = int(re.findall(r'\d+', term)[0])
+            variables['A11'] += int(term.split('x^2')[0])
         elif 'y^2' in term:
-            coefficients['y^2'] = int(re.findall(r'\d+', term)[0])
+            variables['A22'] += int(term.split('y^2')[0])
+        elif 'xy' in term:
+            variables['A12'] += int(term.split('xy')[0]) / 2
+        elif 'x' in term and 'y' not in term:
+            variables['A1'] += int(term.replace('x', '')) / 2
+        elif 'y' in term and 'x' not in term:
+            variables['A2'] += int(term.replace('y', '')) / 2
+        else:
+            variables['A0'] += int(term)
 
-    # Формируем квадратичную форму
-    quadratic_form = f"{coefficients['x^2']}x^2+{coefficients['xy']}xy+{coefficients['y^2']}y^2"
-
-    a = int(coefficients['x^2'])
-    b = int(coefficients['xy']) / 2
-    c = int(coefficients['y^2'])
-
-    matrix = np.array([[int(a), int(b)], [int(b), int(c)]])
-    result = '\n'.join([' '.join(map(str, row)) for row in matrix])
-
-    # print(f"a={a} b={b} c={c}")
-    # print(f" Тип данных: a={type(a)} b={type(b)} c={type(c)} matrix={type(matrix)}")
-    # print(f"a={coefficients['x^2']} b={coefficients['xy']} c={coefficients['y^2']}")
-
-    return f'Уравнение в каноническом виде: b={quadratic_form}\n Матрица А=\n{result}'
-
-
-
-# def convert_to_canonical(equation: str) -> str:
-#     parts = re.findall(r"[+-]?\d*\.?\d*[a-z]\^?\d*", equation)
-#     A, B, C, D, E, F = 0, 0, 0, 0, 0, 0
-#
-#     for part in parts:
-#         coefficient, term = re.match(r"([+-]?\d*\.?\d*)([a-z]\^?\d*)", part).groups()
-#         coefficient = float(coefficient) if coefficient else 1.0
-#
-#         if term == "x^2":
-#             A = coefficient
-#         elif term == "xy":
-#             B = coefficient
-#         elif term == "y^2":
-#             C = coefficient
-#         elif term == "x":
-#             D = coefficient
-#         elif term == "y":
-#             E = coefficient
-#         else:
-#             F = coefficient
-#
-#     canonical_equation = f"{A}X^2 + {B}XY + {C}Y^2 + {D}X + {E}Y + {F} = 0"
-#     print(f"a={A} b={B} c={C} d={D} e={E} f={F}")
-#
-#     return canonical_equation
+    return variables
 
 
 async def main():
@@ -112,10 +120,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-
-
-
