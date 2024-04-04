@@ -62,7 +62,7 @@ det = matrix_det_a[0][0] * (matrix_det_a[1][1] * matrix_det_a[2][2] - matrix_det
 result_a = '\n'.join(['\t'.join(map(str, row)) for row in matrix_det_a])
 
 print(f"\n{result_a} = {matrix_det_a[0][0]} * ({matrix_det_a[1][1]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][1]}) - {matrix_det_a[0][1]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][0]}) + {matrix_det_a[0][2]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][1]} - {matrix_det_a[1][1]} * {matrix_det_a[2][0]}) = {det}")
-
+print('τ')
 # Определение типа графика
 
 

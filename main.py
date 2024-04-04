@@ -59,7 +59,7 @@ async def process_equation(message: types.Message):
         matrix_b = [[A11, A12], [A12, A22]]
         result_b = '\n'.join(['\t'.join(map(str, row)) for row in matrix_b])
         b = (A11 * A22) - (A12 * A12)
-        answer_b = f"b=\n{result_b} = ({A11} * {A22}) - ({A12} * {A12}) = {b}"
+        answer_b = f"{result_b} = ({A11} * {A22}) - ({A12} * {A12}) = {b}"
 
         # det_a
         matrix_det_a = [[A11, A12, A1],
@@ -71,7 +71,7 @@ async def process_equation(message: types.Message):
               matrix_det_a[0][2] * (matrix_det_a[1][0] * matrix_det_a[2][1] - matrix_det_a[1][1] * matrix_det_a[2][0])
         result_a = '\n'.join(['\t'.join(map(str, row)) for row in matrix_det_a])
 
-        answer_det = f"\n{result_a} = {matrix_det_a[0][0]} * ({matrix_det_a[1][1]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][1]}) - {matrix_det_a[0][1]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][0]}) + {matrix_det_a[0][2]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][1]} - {matrix_det_a[1][1]} * {matrix_det_a[2][0]}) = {det}"
+        answer_det = f"{result_a} = {matrix_det_a[0][0]} * ({matrix_det_a[1][1]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][1]}) - {matrix_det_a[0][1]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][2]} - {matrix_det_a[1][2]} * {matrix_det_a[2][0]}) + {matrix_det_a[0][2]} * ({matrix_det_a[1][0]} * {matrix_det_a[2][1]} - {matrix_det_a[1][1]} * {matrix_det_a[2][0]}) = {det}"
 
         # Определение типа графика
 
@@ -84,7 +84,8 @@ async def process_equation(message: types.Message):
         elif b == 0 and det != 0:
             answer_g = "Парабола"
 
-        answer = f"{answer_t}\n\n{answer_b}\n\ndet A={answer_det}\n\nТип графика={answer_g}"
+        # answer = f"{answer_t}\n\n{answer_b}\n\ndet A={answer_det}\n\nТип графика={answer_g}"
+        answer = f"τ = {A11} + {A22} = {t}\n\nδ = {answer_b}\n\nΔ = {answer_det}\n\nТип графика={answer_g}"
 
         await message.answer(answer)
 
