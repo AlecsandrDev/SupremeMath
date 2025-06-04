@@ -14,7 +14,7 @@ import re
 import keyboards
 
 
-TOKEN_API = "6811063530:AAEZNhCPYyW_ohwJvj3uWUWbHhSJIGYRjN0"
+TOKEN_API = ""
 bot = Bot(TOKEN_API)
 dp = Dispatcher()
 
